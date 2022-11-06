@@ -1,0 +1,20 @@
+devil challenge:
+
+    SETUP:
+        chal_app.py just prints stuff from data.candump to stdout for about 3-5min
+
+        check_flag.py checks the value of a number provided and if its
+            the right one provides the flag
+
+
+
+    SOLVE:
+        see solv.py for technical side
+
+        steps:
+            1) get correct info from log file
+            2) connect to nc port and provide info -> flag returned
+            3) provide flag to rctf + win
+
+        
+

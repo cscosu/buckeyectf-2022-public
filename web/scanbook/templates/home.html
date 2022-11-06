@@ -1,0 +1,37 @@
+<!doctype html>
+<title>Scanbook</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<img class="logo" src="{{ url_for('static', filename='logo.png') }}">
+<h1>Welcome to Scanbook</h1>
+<p>Scanbook is a <b>secure storage platform</b> for all of your valuable plaintext.</p>
+<p>How does it work? Simple:</p>
+    <div>Submit your content</div>
+    <div>Save your ticket</div>
+    <div>Use your ticket to retrieve your content</div>
+<p>It's just that easy!</p>
+<hr />
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <p class="flash">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<h2>Make a Post</h2>
+<p>Enter your plaintext below:</p>
+<form method="post" enctype="multipart/form-data">
+    <textarea name="content" rows="10" cols="60" placeholder="Today, I accidentally dropped my lunch into Mirror Lake..."></textarea>
+    <div>
+        <input type="submit" value="Post">
+    </div>
+</form>
+
+<h2>View a Post</h2>
+<p>Upload your ticket to retrieve your plaintext:</p>
+<form method="post" enctype="multipart/form-data">
+    <input type="file" name="ticket">
+    <input type="submit" value="Scan">
+</form>

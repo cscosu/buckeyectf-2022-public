@@ -1,0 +1,19 @@
+<!doctype html>
+<title>fastfor</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<h1>fastfor</h1>
+<img class="logo" src="{{ url_for('static', filename='IMG.png') }}">
+
+<form method="post" enctype="multipart/form-data">
+    <input type="file" name="submission">
+    <input type="submit" value="Submit">
+</form>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <p class="flash">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}

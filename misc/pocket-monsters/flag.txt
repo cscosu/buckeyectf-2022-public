@@ -1,0 +1,13 @@
+buckeye(90774-3mu1473-3m-411)
+
+d6 e9 d7 df d9 ed d9	buckeye
+5c	(
+aa a1 a8 a8 a5	9077a
+ae	-
+a4 e1 e9 a2 a5 a8 a4	3mu1473
+ae	-
+a4 e1	3m
+ae	-
+a5 a2 a2	411
+5d	)
+

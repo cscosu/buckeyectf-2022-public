@@ -1,0 +1,11 @@
+<!doctype html>
+<title>Scanbook</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<img class="logo" src="{{ url_for('static', filename='logo.png') }}">
+<h1>Scanbook</h1>
+
+<textarea rows="10" cols="60" disabled>{{ post_content }}</textarea>
+<hr>
+<p>Here's your ticket:</p>
+<img src="{{ url_for('static', filename=post_code) }}">
