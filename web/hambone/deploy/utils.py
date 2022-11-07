@@ -11,7 +11,7 @@ class Hex():
     
     @classmethod
     def from_distances(cls, distance):
-        return cls(int("".join([hex(i)[2:] for i in distance]), 16))
+        return cls(int("".join([hex(i)[2:].zfill(2) for i in distance]), 16))
     
     def __str__(self):
         return "#" + hex(self.int_val)[2:].zfill(6)
