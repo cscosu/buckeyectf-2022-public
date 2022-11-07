@@ -1,0 +1,5 @@
+Flask==2.2.2
+pycryptodome
+pymongo
+python-dotenv
+gunicorn==20.1.0

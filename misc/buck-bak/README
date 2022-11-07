@@ -1,0 +1,8 @@
+Multiple layer osint/pwn chall
+
+Dockerfile on [Docker Hub](https://hub.docker.com/r/judyhoppsbuckeye1986/buck-bak). Nothing interesting in buck-bak:latest but older revisions have BitBucket repo link and a build server netcat command.
+
+The build server asks for the user to supply a branch name to build (and run). Initially, the only branch you can guess is main. With the BitBucket repo you can see that there is a another branch. This branch has code with a stack overflow vulnerability.
+
+pwn the built code on the new branch to read flag.
+

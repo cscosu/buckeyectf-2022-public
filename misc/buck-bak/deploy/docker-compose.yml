@@ -1,0 +1,12 @@
+version: "3"
+services:
+    buck-bak:
+        build: .
+        ports:
+            - 9001:9001
+            - 8081:8081
+        privileged: true
+        environment:
+            - "DEBUG=1"
+            - "BBSERVER_PORT=9001"
+            - "BBWEB_PORT=8081"

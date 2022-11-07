@@ -1,0 +1,2 @@
+This smart contract is vulnerable to both reentrancy and a integer overflow. Reentrancy is required to exploit the contract, but 
+the integer overflow is not required. The overflow can be triggered as seen in `solve.sol` via redeeming a value less than the maximum redeemable balance and then deleting the account. This will cause the redeemable balance of the caller to underflow, leading to them having the ability to withdraw enough tokens to have a balance great enough to redeem the flag. 

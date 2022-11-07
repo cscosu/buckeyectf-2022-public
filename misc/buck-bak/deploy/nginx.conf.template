@@ -1,0 +1,30 @@
+worker_processes auto;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    limit_req_zone \$binary_remote_addr zone=api_limit:10m rate=5r/m;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    server {
+        listen ${BBWEB_PORT} default_server;
+        listen [::]:${BBWEB_PORT} default_server;
+
+        root /var/www/html;
+        index index.html;
+
+        location = / {
+            # First attempt to serve request as file, then as directory, then
+            # fall back to displaying a 404.
+            try_files $uri $uri/ =404;
+        }
+
+        location ~ /+ {
+            autoindex on;
+        }
+    }
+}

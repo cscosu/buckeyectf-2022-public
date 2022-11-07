@@ -1,0 +1,9 @@
+*
+!server.py
+!run.sh
+!nginx.conf
+!templates/index.html
+!.env
+!requirements.txt
+!utils.py
+!server.py
