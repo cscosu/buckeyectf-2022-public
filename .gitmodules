@@ -1,0 +1,3 @@
+[submodule "rev/osu"]
+	path = rev/osu
+	url = git@github.com:ndrewh/ctf-osu-game.git

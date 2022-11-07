@@ -1,0 +1,83 @@
+commit 0320695d5d2015106612d400d3d2a516eb1ce5f8
+Author: Andrew Haberlandt <ahaberla@andrew.cmu.edu>
+Date:   Sun Nov 6 19:10:52 2022 -0500
+
+    Stack duck challenge; hacky, doesn't work on nontrivial binaries it seems...
+
+diff --git a/llvm/lib/CodeGen/StackProtector.cpp b/llvm/lib/CodeGen/StackProtector.cpp
+index 6765fd274..c711bed05 100644
+--- a/llvm/lib/CodeGen/StackProtector.cpp
++++ b/llvm/lib/CodeGen/StackProtector.cpp
+@@ -535,9 +535,17 @@ bool StackProtector::InsertStackProtectors() {
+       BasicBlock *NewBB =
+           BB.splitBasicBlock(CheckLoc->getIterator(), "SP_return");
+ 
++
++      BasicBlock *StackDuckBB = BasicBlock::Create(F->getContext(), "StackDuckBlock", F);
++      IRBuilder<> DuckB(StackDuckBB);
++      BasicBlock *NormalCanaryBB = BasicBlock::Create(F->getContext(), "StackCanaryBlock", F);
++      IRBuilder<> CanaryB(NormalCanaryBB);
++
+       // Update the dominator tree if we need to.
+       if (DT && DT->isReachableFromEntry(&BB)) {
+-        DT->addNewBlock(NewBB, &BB);
++        DT->addNewBlock(NormalCanaryBB, &BB); // The normal check is in NormalCanaryBB
++        DT->addNewBlock(StackDuckBB, &BB); // The easy check is in StackDuckBB
++        DT->addNewBlock(NewBB, &BB); // The return is in NewBB
+         DT->addNewBlock(FailBB, &BB);
+       }
+ 
+@@ -546,13 +554,29 @@ bool StackProtector::InsertStackProtectors() {
+ 
+       // Move the newly created basic block to the point right after the old
+       // basic block so that it's in the "fall through" position.
+-      NewBB->moveAfter(&BB);
++      NewBB->moveAfter(NormalCanaryBB);
+ 
+-      // Generate the stack protector instructions in the old basic block.
+       IRBuilder<> B(&BB);
+-      Value *Guard = getStackGuard(TLI, M, B);
+-      LoadInst *LI2 = B.CreateLoad(B.getInt8PtrTy(), AI, true);
+-      Value *Cmp = B.CreateICmpEQ(Guard, LI2);
++      auto mod = M;
++      M->getOrInsertGlobal("DuckCounter", B.getInt64Ty(), [mod, &B]() {
++         return new GlobalVariable(*mod, B.getInt64Ty(), false, GlobalValue::ExternalLinkage, 0, "DuckCounter");
++      });
++
++      GlobalVariable *gv = M->getNamedGlobal("DuckCounter");
++      LoadInst *Counter = B.CreateLoad(B.getInt64Ty(), gv);
++      Value *CounterInc = B.CreateAdd(Counter, B.getInt64(1));
++      B.CreateStore(CounterInc, gv);
++      Value *CounterIncMasked = B.CreateAnd(CounterInc, B.getInt64(0x1f));
++      Value *CmpCounter = B.CreateICmpEQ(CounterIncMasked, B.getInt64(0x1e));
++
++      B.CreateCondBr(CmpCounter, StackDuckBB, NormalCanaryBB);
++
++
++      // Generate normal stack protector instructions in the old basic block.
++      Value *Guard = getStackGuard(TLI, M, CanaryB);
++      LoadInst *LI2 = CanaryB.CreateLoad(CanaryB.getInt8PtrTy(), AI, true);
++      Value *Cmp = CanaryB.CreateICmpEQ(Guard, LI2);
++
+       auto SuccessProb =
+           BranchProbabilityInfo::getBranchProbStackProtector(true);
+       auto FailureProb =
+@@ -560,7 +584,17 @@ bool StackProtector::InsertStackProtectors() {
+       MDNode *Weights = MDBuilder(F->getContext())
+                             .createBranchWeights(SuccessProb.getNumerator(),
+                                                  FailureProb.getNumerator());
+-      B.CreateCondBr(Cmp, NewBB, FailBB, Weights);
++      CanaryB.CreateCondBr(Cmp, NewBB, FailBB, Weights);
++
++      // Generate duck stack protector instructions in the old basic block
++      Value *DuckGuard = DuckB.CreatePtrToInt(getStackGuard(TLI, M, DuckB), DuckB.getInt64Ty());
++      Value *DuckLI2 = DuckB.CreatePtrToInt(DuckB.CreateLoad(DuckB.getInt8PtrTy(), AI, true), DuckB.getInt64Ty());
++      Value *DuckCmp = DuckB.CreateICmpEQ(DuckB.CreateTruncOrBitCast(DuckGuard, DuckB.getInt8Ty()), DuckB.CreateTruncOrBitCast(DuckLI2, DuckB.getInt8Ty()));
++
++      DuckB.CreateCondBr(DuckCmp, NewBB, FailBB, Weights);
++
++      // F->dump();
++
+     }
+   }
+ 
