@@ -1,0 +1,13 @@
+<Files .htaccess>
+Order allow,deny
+Deny from all
+</Files>
+
+# Hide the contents of directories
+Options -Indexes
+
+<FilesMatch "\.(db|sql)$">
+Order allow,deny
+Deny from all
+
+</FilesMatch>
